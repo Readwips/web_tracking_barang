@@ -13,7 +13,7 @@ LogiTrack AI adalah aplikasi web untuk membantu mengelola dan memantau pengirima
 - Mengakses data pengiriman melalui REST API.
 - Membuat draft pemberitahuan pelanggan dan ringkasan operasional dengan bantuan AI. Aplikasi tetap dapat memberikan hasil sederhana saat layanan AI tidak tersedia.
 
-## Fitur yang Masih Dikembangkan
+## Rencana kedepan nya
 
 Fitur berikut merupakan rencana pengembangan dan belum tersedia pada versi saat ini:
 
