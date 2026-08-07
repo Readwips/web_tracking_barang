@@ -1,68 +1,24 @@
 # LogiTrack AI
 
-Sistem manajemen pengiriman dan tracking kontainer berbasis Laravel, Blade, Tailwind, MySQL, REST API, Chart.js, dan AI assistant.
+LogiTrack AI adalah aplikasi web untuk membantu mengelola dan memantau pengiriman kontainer. Pelanggan dapat mengecek perjalanan kontainer, sedangkan admin dan petugas operasional dapat mengelola data serta memperbarui proses pengiriman.
 
-## Fitur
+## Yang Bisa Dilakukan
 
-- Login Laravel Breeze dengan role `admin`, `operator`, dan `customer`.
-- CRUD master data: pelanggan, kapal, pelabuhan, kontainer, jenis barang, dan jadwal keberangkatan.
-- Transaksi pengiriman dengan booking number, kontainer, pelanggan, rute, kapal, tanggal, ETA, dan status.
-- Tracking publik berdasarkan nomor kontainer dengan timeline histori.
-- Dashboard operasional: aktif, selesai, terlambat, pelanggan, rute terbanyak, grafik bulanan Chart.js.
-- REST API: list, detail tracking, create shipment, update status.
-- AI assistant untuk draft pesan pelanggan dan ringkasan operasional. Jika `OPENAI_API_KEY` kosong, aplikasi memakai fallback lokal agar demo tetap berjalan.
+- Melacak kontainer tanpa login menggunakan nomor kontainer dan melihat riwayat perjalanannya.
+- Mengelola pengiriman, mulai dari nomor booking, pelanggan, kontainer, kapal, rute, jadwal, estimasi tiba, hingga status pengiriman.
+- Memperbarui status serta menambahkan lokasi dan catatan pada timeline pengiriman.
+- Mengelola data pelanggan, kapal, pelabuhan, kontainer, jenis barang, dan jadwal keberangkatan.
+- Melihat dashboard operasional yang menampilkan pengiriman aktif, selesai, terlambat, rute tersibuk, dan grafik pengiriman bulanan.
+- Membatasi akses berdasarkan peran admin, operator, dan pelanggan. Pelanggan hanya dapat melihat pengiriman miliknya.
+- Mengakses data pengiriman melalui REST API.
+- Membuat draft pemberitahuan pelanggan dan ringkasan operasional dengan bantuan AI. Aplikasi tetap dapat memberikan hasil sederhana saat layanan AI tidak tersedia.
 
-## Setup Lokal
+## Fitur yang Masih Dikembangkan
 
-```bash
-cp .env.example .env
-composer install
-npm install
-php artisan key:generate
-php artisan migrate --seed
-npm run build
-php artisan serve
-```
+Fitur berikut merupakan rencana pengembangan dan belum tersedia pada versi saat ini:
 
-Untuk verifikasi cepat tanpa MySQL, ubah `.env` menjadi:
-
-```env
-DB_CONNECTION=sqlite
-DB_DATABASE=/absolute/path/to/database/database.sqlite
-```
-
-## Akun Demo
-
-Semua password: `password`
-
-- Admin: `admin@logitrack.test`
-- Petugas: `operator@logitrack.test`
-- Pelanggan: `pelanggan@logitrack.test`
-
-Nomor kontainer demo: `TANTO-CT-000124`
-
-## REST API
-
-```http
-GET /api/shipments
-GET /api/shipments/TANTO-CT-000124
-POST /api/shipments
-PUT /api/shipments/{id}/status
-```
-
-Koleksi Postman tersedia di `postman/LogiTrackAI.postman_collection.json`.
-
-## AI
-
-Tambahkan key berikut di `.env` untuk memakai OpenAI API:
-
-```env
-OPENAI_API_KEY=isi_api_key
-OPENAI_MODEL=gpt-4.1-mini
-```
-
-## Testing
-
-```bash
-php artisan test
-```
+- [ ] Notifikasi perubahan status melalui email atau WhatsApp.
+- [ ] Pelacakan posisi kontainer secara real-time melalui GPS dan peta.
+- [ ] Pencarian, filter, dan ekspor laporan pengiriman ke PDF atau Excel.
+- [ ] Manajemen akun dan hak akses yang lebih lengkap.
+- [ ] Autentikasi token dan pembatasan akses pada REST API.
