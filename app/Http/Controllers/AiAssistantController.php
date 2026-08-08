@@ -51,8 +51,7 @@ class AiAssistantController extends Controller
             'active' => $shipments->where('status', '!=', 'Selesai')->count(),
             'completed' => $shipments->where('status', 'Selesai')->count(),
             'delayed' => $shipments
-                ->where('status', '!=', 'Selesai')
-                ->filter(fn (Shipment $shipment) => $shipment->estimated_arrival->isPast())
+                ->filter(fn (Shipment $shipment) => $shipment->isDelayed())
                 ->count(),
             'stale' => $shipments
                 ->where('status', '!=', 'Selesai')

@@ -21,6 +21,11 @@ class Shipment extends Model
         'Selesai',
     ];
 
+    public const ARRIVED_STATUSES = [
+        'Tiba di pelabuhan tujuan',
+        'Selesai',
+    ];
+
     protected $fillable = [
         'booking_number',
         'customer_id',
@@ -54,6 +59,21 @@ class Shipment extends Model
         }
 
         return $query;
+    }
+
+    public function scopeDelayed(Builder $query): Builder
+    {
+        return $query
+            ->whereNull('actual_arrival')
+            ->whereNotIn('status', self::ARRIVED_STATUSES)
+            ->whereDate('estimated_arrival', '<', today());
+    }
+
+    public function isDelayed(): bool
+    {
+        return $this->actual_arrival === null
+            && ! in_array($this->status, self::ARRIVED_STATUSES, true)
+            && $this->estimated_arrival->startOfDay()->lt(today());
     }
 
     public function customer(): BelongsTo
@@ -99,5 +119,10 @@ class Shipment extends Model
     public function timeline(): HasMany
     {
         return $this->hasMany(ShipmentHistory::class)->oldest();
+    }
+
+    public function delayAlertDeliveries(): HasMany
+    {
+        return $this->hasMany(DelayAlertDelivery::class);
     }
 }

@@ -8,6 +8,21 @@ use Throwable;
 
 class AiAssistantService
 {
+    public function delayedShipmentNotice(): string
+    {
+        $prompt = <<<'PROMPT'
+Buat dua kalimat pendamping untuk email pemberitahuan keterlambatan pengiriman dalam Bahasa Indonesia yang resmi, jelas, dan empatik.
+Jangan menyebut atau mengarang nomor booking, kontainer, rute, tanggal, jumlah hari, status, penyebab, lokasi, janji, atau estimasi tiba baru karena fakta pengiriman ditampilkan terpisah oleh sistem.
+Jangan menambahkan salam pembuka, salam penutup, subjek, atau format Markdown.
+PROMPT;
+
+        $notice = trim(strip_tags((string) $this->complete($prompt)));
+
+        return $notice !== ''
+            ? Str::limit($notice, 1500)
+            : $this->fallbackDelayedShipmentNotice();
+    }
+
     public function customerNotice(string $context): string
     {
         $prompt = "Buat pesan informasi resmi dan empatik untuk pelanggan logistik dalam Bahasa Indonesia berdasarkan konteks berikut:\n\n{$context}";
@@ -81,5 +96,10 @@ Kami informasikan bahwa pengiriman dengan nomor kontainer {$containerNumber} men
 
 Estimasi kedatangan terbaru {$delayText}. Kami akan memberikan pembaruan apabila terdapat perkembangan lebih lanjut.
 TEXT;
+    }
+
+    private function fallbackDelayedShipmentNotice(): string
+    {
+        return 'Pengiriman ini belum tiba sesuai estimasi. Tim operasional terus memantau pengiriman dan pembaruan berikutnya akan disampaikan melalui kanal yang tersedia.';
     }
 }
