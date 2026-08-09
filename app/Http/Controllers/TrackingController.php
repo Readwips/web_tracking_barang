@@ -18,13 +18,15 @@ class TrackingController extends Controller
             'container_number' => ['required', 'string', 'max:50'],
         ]);
 
-        return redirect()->route('tracking.show', strtoupper($validated['container_number']));
+        return redirect()->route('tracking.show', strtoupper(trim($validated['container_number'])));
     }
 
     public function show(string $containerNumber)
     {
+        $containerNumber = strtoupper(trim($containerNumber));
+
         $shipment = Shipment::query()
-            ->with(['customer', 'container', 'vessel', 'originPort', 'destinationPort', 'timeline'])
+            ->with(['container', 'vessel', 'originPort', 'destinationPort', 'timeline'])
             ->whereHas('container', fn ($query) => $query->where('container_number', $containerNumber))
             ->latest()
             ->first();
