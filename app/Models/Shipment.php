@@ -76,6 +76,18 @@ class Shipment extends Model
             && $this->estimated_arrival->startOfDay()->lt(today());
     }
 
+    public function daysLate(): int
+    {
+        if (! $this->isDelayed()) {
+            return 0;
+        }
+
+        return max(
+            1,
+            (int) $this->estimated_arrival->startOfDay()->diffInDays(today()),
+        );
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);

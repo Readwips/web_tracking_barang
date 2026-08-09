@@ -11,12 +11,14 @@ LogiTrack AI adalah aplikasi web untuk membantu mengelola dan memantau pengirima
 - Melihat dashboard operasional yang menampilkan pengiriman aktif, selesai, terlambat, rute tersibuk, dan grafik pengiriman bulanan.
 - Membatasi akses berdasarkan peran admin, operator, dan pelanggan. Pelanggan hanya dapat melihat pengiriman miliknya.
 - Mengakses data pengiriman melalui REST API.
-- Membuat draft pemberitahuan pelanggan dan ringkasan operasional dengan bantuan AI. Aplikasi tetap dapat memberikan hasil sederhana saat layanan AI tidak tersedia.
+- Membuat draft pemberitahuan pelanggan dan ringkasan operasional dengan bantuan AI. Draft pada halaman AI Assistant tidak dikirim otomatis; aplikasi tetap dapat memberikan hasil sederhana saat layanan AI tidak tersedia.
 - Mendeteksi pengiriman yang melewati ETA dan mengirim pemberitahuan otomatis melalui email pelanggan, email operasional, dan webhook generik.
 
 ## Notifikasi keterlambatan
 
 Pengiriman dianggap terlambat mulai hari setelah tanggal `estimated_arrival` apabila belum memiliki `actual_arrival` dan statusnya belum `Tiba di pelabuhan tujuan` atau `Selesai`. Pemeriksaan dijalankan setiap 15 menit oleh Laravel Scheduler.
+
+Halaman tracking publik juga menampilkan banner keterlambatan, ETA, jumlah hari terlambat, dan status terakhir secara langsung. Banner dihitung dari data shipment sehingga dapat dilihat tanpa menunggu email atau webhook.
 
 AI hanya digunakan untuk menyusun kalimat pendamping yang netral dan empatik; detail booking, kontainer, rute, ETA, jumlah hari, dan status selalu diambil langsung dari database saat pesan dikirim. Data pengiriman tersebut tidak dikirim ke AI untuk notifikasi otomatis. Keputusan apakah pengiriman terlambat juga tetap dihitung dari database. Jika `OPENAI_API_KEY` kosong atau layanan AI gagal, aplikasi memakai pesan lokal sehingga notifikasi tetap berjalan.
 

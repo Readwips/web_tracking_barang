@@ -38,7 +38,15 @@
                         <button class="w-full rounded-md bg-cyan-700 px-4 py-3 text-sm font-semibold text-white hover:bg-cyan-800">Lacak Kontainer</button>
                     </form>
                     <div class="mt-6 rounded-md bg-slate-50 p-4 text-sm text-slate-600">
-                        Contoh nomor: <span class="font-semibold text-slate-900">TANTO-CT-000124</span>
+                        <p class="font-semibold text-slate-900">Contoh nomor kontainer</p>
+                        <div class="mt-2 flex flex-col gap-2">
+                            <a href="{{ route('tracking.show', 'TANTO-CT-000124') }}" class="text-cyan-700 underline decoration-cyan-200 underline-offset-4 hover:text-cyan-900">
+                                TANTO-CT-000124
+                            </a>
+                            <a href="{{ route('tracking.show', 'TANTO-CT-000125') }}" class="text-red-700 underline decoration-red-200 underline-offset-4 hover:text-red-900">
+                                TANTO-CT-000125
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -49,9 +57,33 @@
                                 <p class="text-sm text-slate-500">{{ $shipment->booking_number }}</p>
                                 <h2 class="mt-1 text-2xl font-bold text-slate-950">{{ $shipment->container->container_number }}</h2>
                                 <p class="mt-2 text-sm text-slate-600">{{ $shipment->originPort->city }} ke {{ $shipment->destinationPort->city }} - {{ $shipment->vessel->name }}</p>
+                                <p class="mt-1 text-sm text-slate-600">Estimasi tiba: <span class="font-semibold text-slate-900">{{ $shipment->estimated_arrival->translatedFormat('d F Y') }}</span></p>
                             </div>
-                            <span class="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white">{{ $shipment->status }}</span>
+                            <span @class([
+                                'rounded-full px-4 py-2 text-sm font-semibold text-white',
+                                'bg-red-700' => $shipment->isDelayed(),
+                                'bg-slate-900' => ! $shipment->isDelayed(),
+                            ])>{{ $shipment->status }}</span>
                         </div>
+
+                        @if($shipment->isDelayed())
+                            <div data-delay-alert role="alert" class="mt-6 rounded-lg border border-red-200 bg-red-50 p-5 text-red-950 shadow-sm">
+                                <div class="flex items-start gap-4">
+                                    <span aria-hidden="true" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-700 text-lg font-bold text-white">!</span>
+                                    <div>
+                                        <p class="text-xs font-bold uppercase tracking-wider text-red-700">Pemberitahuan keterlambatan</p>
+                                        <h3 class="mt-1 text-lg font-bold">Pengiriman mengalami keterlambatan</h3>
+                                        <p class="mt-2 text-sm leading-6">
+                                            Estimasi tiba {{ $shipment->estimated_arrival->translatedFormat('d F Y') }} telah terlewati selama
+                                            <span class="font-bold">{{ $shipment->daysLate() }} hari</span>.
+                                        </p>
+                                        <p class="mt-1 text-sm leading-6">
+                                            Status terakhir: <span class="font-semibold">{{ $shipment->status }}</span>. Pantau timeline ini atau hubungi petugas operasional untuk informasi terbaru.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
 
                         <div class="mt-6 space-y-6">
                             @foreach($shipment->timeline as $history)
