@@ -192,6 +192,7 @@
                                     max="{{ today()->toDateString() }}"
                                     value="{{ old('actual_arrival', today()->toDateString()) }}"
                                     :required="action === 'arrived'"
+                                    :disabled="action !== 'arrived'"
                                     aria-describedby="quick-arrival-help"
                                     @if($errors->quickAction->has('actual_arrival')) aria-invalid="true" @endif
                                     class="mt-2 min-h-11 w-full rounded-xl border-slate-300 shadow-sm focus:border-cyan-600 focus:ring-cyan-600"
@@ -201,12 +202,12 @@
 
                             <div x-show="action === 'update'">
                                 <label for="quick_location" class="block text-sm font-bold text-slate-700">Lokasi <span class="font-normal text-slate-400">(opsional)</span></label>
-                                <input id="quick_location" name="location" value="{{ old('location') }}" placeholder="Contoh: Dalam perjalanan" class="mt-2 min-h-11 w-full rounded-xl border-slate-300 shadow-sm focus:border-cyan-600 focus:ring-cyan-600">
+                                <input id="quick_location" name="location" value="{{ old('location') }}" :disabled="action !== 'update'" placeholder="Contoh: Dalam perjalanan" class="mt-2 min-h-11 w-full rounded-xl border-slate-300 shadow-sm focus:border-cyan-600 focus:ring-cyan-600">
                             </div>
 
                             <div x-show="action === 'update'" class="md:col-span-2">
                                 <label for="quick_description" class="block text-sm font-bold text-slate-700">Catatan pelanggan</label>
-                                <textarea id="quick_description" name="description" rows="3" maxlength="1000" placeholder="Tuliskan pembaruan yang sudah terverifikasi." class="mt-2 w-full rounded-xl border-slate-300 shadow-sm focus:border-cyan-600 focus:ring-cyan-600">{{ old('description') }}</textarea>
+                                <textarea id="quick_description" name="description" rows="3" maxlength="1000" :disabled="action !== 'update'" placeholder="Tuliskan pembaruan yang sudah terverifikasi." class="mt-2 w-full rounded-xl border-slate-300 shadow-sm focus:border-cyan-600 focus:ring-cyan-600">{{ old('description') }}</textarea>
                                 <p class="mt-2 text-xs leading-5 text-slate-500">Catatan ini akan muncul pada timeline tracking publik. Gunakan informasi yang sudah terverifikasi.</p>
                             </div>
                         </div>

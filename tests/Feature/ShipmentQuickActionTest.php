@@ -493,6 +493,8 @@ class ShipmentQuickActionTest extends DelayAlertTestCase
             ->assertSee('value="arrived"', false)
             ->assertSee('value="update"', false)
             ->assertSee('name="actual_arrival"', false)
+            ->assertSee(':disabled="action !== \'arrived\'"', false)
+            ->assertSee(':disabled="action !== \'update\'"', false)
             ->assertSee('name="booking_number"', false)
             ->assertSee('name="estimated_arrival"', false);
 
