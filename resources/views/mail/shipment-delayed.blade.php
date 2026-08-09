@@ -24,7 +24,11 @@
                     <tr><td style="padding: 10px 14px; color: #475569;">Kontainer</td><td style="padding: 10px 14px; font-weight: 700;">{{ $shipment->container->container_number }}</td></tr>
                     <tr><td style="padding: 10px 14px; color: #475569;">Rute</td><td style="padding: 10px 14px; font-weight: 700;">{{ $shipment->originPort->city }} - {{ $shipment->destinationPort->city }}</td></tr>
                     <tr><td style="padding: 10px 14px; color: #475569;">Estimasi tiba</td><td style="padding: 10px 14px; font-weight: 700;">{{ $delivery->expected_arrival->translatedFormat('d F Y') }}</td></tr>
-                    <tr><td style="padding: 10px 14px; color: #475569;">Keterlambatan</td><td style="padding: 10px 14px; font-weight: 700;">{{ $daysLate }} hari</td></tr>
+                    @if($isEtaOverdue)
+                        <tr><td style="padding: 10px 14px; color: #475569;">Keterlambatan</td><td style="padding: 10px 14px; font-weight: 700;">{{ $daysLate }} hari</td></tr>
+                    @else
+                        <tr><td style="padding: 10px 14px; color: #475569;">Kondisi</td><td style="padding: 10px 14px; font-weight: 700;">Dilaporkan terlambat</td></tr>
+                    @endif
                     <tr><td style="padding: 10px 14px; color: #475569;">Status terakhir</td><td style="padding: 10px 14px; font-weight: 700;">{{ $shipment->status }}</td></tr>
                 </tbody>
             </table>
@@ -33,7 +37,7 @@
                 <a href="{{ $trackingUrl }}" style="display: inline-block; border-radius: 8px; background: #0e7490; color: #ffffff; padding: 12px 20px; text-decoration: none; font-weight: 700;">Lihat Tracking Pengiriman</a>
             </p>
 
-            <p style="color: #64748b; font-size: 13px; line-height: 1.6;">Pesan ini dibuat otomatis oleh {{ config('app.name') }} berdasarkan data ETA pengiriman.</p>
+            <p style="color: #64748b; font-size: 13px; line-height: 1.6;">Pesan ini dibuat otomatis oleh {{ config('app.name') }} berdasarkan status operasional dan data ETA pengiriman.</p>
             <p style="margin-bottom: 0;">Terima kasih,<br>{{ config('app.name') }}</p>
         </div>
     </div>

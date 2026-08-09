@@ -179,7 +179,9 @@ class SendDelayAlert implements ShouldBeUnique, ShouldQueue
                 'origin' => $shipment->originPort->city,
                 'destination' => $shipment->destinationPort->city,
                 'estimated_arrival' => $delivery->expected_arrival->toDateString(),
-                'days_late' => max(1, (int) $delivery->expected_arrival->startOfDay()->diffInDays(today())),
+                'days_late' => $delivery->expected_arrival->startOfDay()->lt(today())
+                    ? max(1, (int) $delivery->expected_arrival->startOfDay()->diffInDays(today()))
+                    : 0,
                 'status' => $shipment->status,
                 'tracking_url' => route('tracking.show', $shipment->container->container_number),
             ],
@@ -278,7 +280,8 @@ class SendDelayAlert implements ShouldBeUnique, ShouldQueue
         $shipment = $delivery->shipment;
 
         if (! $shipment->isDelayed()
-            || ! $shipment->estimated_arrival->isSameDay($delivery->expected_arrival)) {
+            || ! $shipment->estimated_arrival->isSameDay($delivery->expected_arrival)
+            || $shipment->delay_report_sequence !== $delivery->delay_report_sequence) {
             $this->cancel($delivery, 'Pengiriman tidak lagi memenuhi kondisi keterlambatan untuk ETA ini.');
 
             return null;

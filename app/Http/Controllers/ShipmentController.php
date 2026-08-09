@@ -10,8 +10,11 @@ use App\Models\Schedule;
 use App\Models\Shipment;
 use App\Models\ShipmentHistory;
 use App\Models\Vessel;
+use App\Services\DelayAlertDestinationResolver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ShipmentController extends Controller
 {
@@ -58,11 +61,17 @@ class ShipmentController extends Controller
         return view('shipments.show', compact('shipment'));
     }
 
-    public function edit(Request $request, Shipment $shipment)
-    {
+    public function edit(
+        Request $request,
+        Shipment $shipment,
+        DelayAlertDestinationResolver $destinationResolver,
+    ) {
         $this->ensureVisible($request, $shipment);
+        $shipment->load(['customer.user', 'container', 'vessel', 'originPort', 'destinationPort', 'schedule']);
 
-        return view('shipments.form', $this->formData($shipment));
+        return view('shipments.form', $this->formData($shipment) + [
+            'delayAlertDestinations' => array_values($destinationResolver->forShipment($shipment)),
+        ]);
     }
 
     public function update(Request $request, Shipment $shipment)
@@ -71,22 +80,64 @@ class ShipmentController extends Controller
 
         $validated = $request->validate($this->rules($shipment->id));
         $history = $this->historyPayload($validated);
-        $oldStatus = $shipment->status;
+        $payload = $this->shipmentPayload($validated);
+        $expectedVersion = (int) $validated['expected_version'];
 
-        $shipment->update($this->shipmentPayload($validated));
-
-        if ($oldStatus !== $shipment->status || $history['location'] || $history['description']) {
-            $shipment->forceFill(['latest_status_at' => now()])->save();
-            $shipment->load(['originPort', 'destinationPort', 'container']);
-            ShipmentHistory::create([
-                'shipment_id' => $shipment->id,
-                'status' => $shipment->status,
-                'location' => $history['location'] ?: $this->defaultHistoryLocation($shipment),
-                'description' => $history['description'] ?: 'Status pengiriman diperbarui menjadi '.$shipment->status.'.',
-            ]);
+        if (($payload['actual_arrival'] ?? null) || in_array($payload['status'], Shipment::ARRIVED_STATUSES, true)) {
+            $payload['delay_reported_at'] = null;
         }
 
-        $shipment->container->update(['status' => $this->containerStatusFor($shipment->status)]);
+        DB::transaction(function () use ($shipment, $payload, $history, $expectedVersion): void {
+            $currentShipment = Shipment::query()
+                ->with(['originPort', 'destinationPort', 'container'])
+                ->findOrFail($shipment->id);
+
+            if ($currentShipment->operational_version !== $expectedVersion) {
+                $this->failStaleUpdate();
+            }
+
+            $createsHistory = $currentShipment->status !== $payload['status']
+                || $history['location']
+                || $history['description'];
+
+            $attributes = $payload;
+            $projectedShipment = clone $currentShipment;
+            $projectedShipment->forceFill($payload);
+
+            if ($currentShipment->isDelayed() !== $projectedShipment->isDelayed()) {
+                $attributes['delay_report_sequence'] = DB::raw('delay_report_sequence + 1');
+            }
+
+            if ($createsHistory) {
+                $attributes['latest_status_at'] = now();
+            }
+
+            $updated = Shipment::query()
+                ->whereKey($currentShipment->id)
+                ->where('operational_version', $expectedVersion)
+                ->update(array_merge($attributes, [
+                    'operational_version' => DB::raw('operational_version + 1'),
+                    'updated_at' => now(),
+                ]));
+
+            if ($updated !== 1) {
+                $this->failStaleUpdate();
+            }
+
+            $currentShipment->refresh();
+            $currentShipment->loadMissing(['originPort', 'destinationPort', 'container']);
+
+            if ($createsHistory) {
+                ShipmentHistory::create([
+                    'shipment_id' => $currentShipment->id,
+                    'status' => $currentShipment->status,
+                    'location' => $history['location'] ?: $this->defaultHistoryLocation($currentShipment),
+                    'description' => $history['description'] ?: 'Status pengiriman diperbarui menjadi '.$currentShipment->status.'.',
+                ]);
+            }
+
+            $currentShipment->container->update(['status' => $this->containerStatusFor($currentShipment->status)]);
+        });
 
         return redirect()->route('shipments.show', $shipment)->with('status', 'Pengiriman berhasil diperbarui.');
     }
@@ -94,8 +145,20 @@ class ShipmentController extends Controller
     public function destroy(Request $request, Shipment $shipment)
     {
         $this->ensureVisible($request, $shipment);
+        $validated = $request->validate([
+            'expected_version' => ['required', 'integer', 'min:0'],
+        ]);
 
-        $shipment->delete();
+        $deleted = Shipment::query()
+            ->whereKey($shipment->id)
+            ->where('operational_version', (int) $validated['expected_version'])
+            ->delete();
+
+        if ($deleted !== 1) {
+            throw ValidationException::withMessages([
+                'expected_version' => 'Pengiriman telah diperbarui oleh petugas lain. Muat ulang halaman sebelum menghapus.',
+            ]);
+        }
 
         return redirect()->route('shipments.index')->with('status', 'Pengiriman berhasil dihapus.');
     }
@@ -136,12 +199,15 @@ class ShipmentController extends Controller
             'status' => ['required', Rule::in(Shipment::STATUSES)],
             'history_location' => ['nullable', 'string', 'max:255'],
             'history_description' => ['nullable', 'string'],
+            'expected_version' => $id === null
+                ? ['exclude']
+                : ['required', 'integer', 'min:0'],
         ];
     }
 
     private function shipmentPayload(array $validated): array
     {
-        unset($validated['history_location'], $validated['history_description']);
+        unset($validated['history_location'], $validated['history_description'], $validated['expected_version']);
 
         return $validated;
     }
@@ -178,5 +244,12 @@ class ShipmentController extends Controller
             'Booking dibuat' => 'booked',
             default => 'in_use',
         };
+    }
+
+    private function failStaleUpdate(): never
+    {
+        throw ValidationException::withMessages([
+            'expected_version' => 'Pengiriman telah diperbarui oleh petugas lain. Muat ulang halaman sebelum menyimpan Detail lanjutan.',
+        ]);
     }
 }

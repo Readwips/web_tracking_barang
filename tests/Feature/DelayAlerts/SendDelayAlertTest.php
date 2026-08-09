@@ -16,6 +16,113 @@ use RuntimeException;
 
 class SendDelayAlertTest extends DelayAlertTestCase
 {
+    public function test_job_cancels_a_delivery_from_an_older_manual_delay_report_cycle(): void
+    {
+        $shipment = $this->customerShipment();
+        $shipment->forceFill([
+            'actual_arrival' => null,
+            'estimated_arrival' => today()->addDays(5),
+            'status' => 'Dalam perjalanan',
+            'delay_reported_at' => now(),
+            'delay_report_sequence' => 1,
+        ])->save();
+        $shipment->refresh();
+
+        $delivery = $this->createDelivery(
+            $shipment,
+            DelayAlertDelivery::CHANNEL_MAIL,
+            'pelanggan@logitrack.test',
+            'pelanggan@logitrack.test',
+            'customer',
+        );
+
+        $shipment->forceFill([
+            'delay_reported_at' => now()->addMinute(),
+            'delay_report_sequence' => 2,
+        ])->save();
+
+        config([
+            'delay-alerts.notify_customer' => true,
+            'delay-alerts.operations_emails' => [],
+        ]);
+        Mail::fake();
+        Http::fake();
+
+        (new SendDelayAlert($delivery->id))->handle();
+
+        Mail::assertNothingSent();
+        Http::assertNothingSent();
+
+        $delivery->refresh();
+        $this->assertSame(1, $delivery->delay_report_sequence);
+        $this->assertSame(DelayAlertDelivery::STATUS_CANCELLED, $delivery->status);
+        $this->assertSame(0, $delivery->attempts);
+        $this->assertNotNull($delivery->cancelled_at);
+    }
+
+    public function test_operator_reported_delay_mail_does_not_claim_the_future_eta_was_missed(): void
+    {
+        $shipment = $this->customerShipment();
+        $shipment->forceFill([
+            'actual_arrival' => null,
+            'estimated_arrival' => today()->addDays(5),
+            'status' => 'Dalam perjalanan',
+            'delay_reported_at' => now(),
+        ])->save();
+        $delivery = $this->createDelivery(
+            $shipment,
+            DelayAlertDelivery::CHANNEL_MAIL,
+            'recipient@example.test',
+            'recipient@example.test',
+            'operations',
+        );
+
+        config(['delay-alerts.operations_emails' => ['recipient@example.test']]);
+        Mail::fake();
+
+        (new SendDelayAlert($delivery->id))->handle();
+
+        Mail::assertSent(ShipmentDelayedMail::class, function (ShipmentDelayedMail $mail): bool {
+            $mail->assertSeeInText('Kondisi: Dilaporkan terlambat');
+            $mail->assertDontSeeInText('Keterlambatan: 1 hari');
+
+            return true;
+        });
+    }
+
+    public function test_operator_reported_delay_webhook_uses_zero_days_late_before_eta(): void
+    {
+        $shipment = $this->customerShipment();
+        $shipment->forceFill([
+            'actual_arrival' => null,
+            'estimated_arrival' => today()->addDays(5),
+            'status' => 'Dalam perjalanan',
+            'delay_reported_at' => now(),
+        ])->save();
+        $webhookUrl = 'https://alerts.example.test/events/reported-delay';
+        $delivery = $this->createDelivery(
+            $shipment,
+            DelayAlertDelivery::CHANNEL_WEBHOOK,
+            $webhookUrl,
+            'webhook://alerts.example.test',
+            'system',
+        );
+
+        config(['delay-alerts.webhook.url' => $webhookUrl]);
+        Http::fake(function (Request $request) {
+            $payload = json_decode($request->body(), true, flags: JSON_THROW_ON_ERROR);
+
+            $this->assertSame(0, $payload['shipment']['days_late']);
+
+            return Http::response(null, 202);
+        });
+
+        (new SendDelayAlert($delivery->id))->handle();
+
+        Http::assertSentCount(1);
+        $this->assertSame(DelayAlertDelivery::STATUS_SENT, $delivery->refresh()->status);
+    }
+
     public function test_queued_job_sends_mail_and_marks_delivery_as_sent(): void
     {
         $shipment = $this->makeOnlyCustomerShipmentDelayed();
@@ -429,6 +536,7 @@ class SendDelayAlertTest extends DelayAlertTestCase
         return DelayAlertDelivery::query()->create([
             'shipment_id' => $shipment->id,
             'expected_arrival' => $shipment->estimated_arrival->toDateString(),
+            'delay_report_sequence' => $shipment->delay_report_sequence,
             'event' => DelayAlertDelivery::EVENT,
             'channel' => $channel,
             'audience' => $audience,

@@ -100,6 +100,6 @@ TEXT;
 
     private function fallbackDelayedShipmentNotice(): string
     {
-        return 'Pengiriman ini belum tiba sesuai estimasi. Tim operasional terus memantau pengiriman dan pembaruan berikutnya akan disampaikan melalui kanal yang tersedia.';
+        return 'Pengiriman ini terdeteksi mengalami keterlambatan. Tim operasional terus memantau pengiriman dan pembaruan berikutnya akan disampaikan melalui kanal yang tersedia.';
     }
 }

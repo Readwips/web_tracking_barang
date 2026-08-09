@@ -16,7 +16,7 @@ class AiAssistantDelayNoticeTest extends DelayAlertTestCase
         $message = app(AiAssistantService::class)->delayedShipmentNotice();
 
         Http::assertNothingSent();
-        $this->assertStringContainsString('belum tiba sesuai estimasi', $message);
+        $this->assertStringContainsString('mengalami keterlambatan', $message);
         $this->assertStringNotContainsString('BOOK-2026-000124', $message);
         $this->assertStringNotContainsString('TANTO-CT-000124', $message);
         $this->assertStringNotContainsString('```', $message);
@@ -37,7 +37,7 @@ class AiAssistantDelayNoticeTest extends DelayAlertTestCase
             && $request->hasHeader('Authorization', 'Bearer test-api-key')
             && ! str_contains($request->body(), 'BOOK-2026-000124')
             && ! str_contains($request->body(), 'TANTO-CT-000124'));
-        $this->assertStringContainsString('belum tiba sesuai estimasi', $message);
+        $this->assertStringContainsString('mengalami keterlambatan', $message);
         $this->assertStringNotContainsString('BOOK-2026-000124', $message);
         $this->assertStringNotContainsString('TANTO-CT-000124', $message);
     }

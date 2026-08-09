@@ -27,6 +27,7 @@ class DelayAlertDelivery extends Model
     protected $fillable = [
         'shipment_id',
         'expected_arrival',
+        'delay_report_sequence',
         'event',
         'channel',
         'audience',
@@ -46,6 +47,7 @@ class DelayAlertDelivery extends Model
     {
         return [
             'expected_arrival' => 'date',
+            'delay_report_sequence' => 'integer',
             'attempts' => 'integer',
             'last_attempt_at' => 'datetime',
             'sent_at' => 'datetime',

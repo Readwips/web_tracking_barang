@@ -4,12 +4,244 @@ namespace Tests\Feature\DelayAlerts;
 
 use App\Jobs\SendDelayAlert;
 use App\Models\DelayAlertDelivery;
+use App\Models\Shipment;
+use App\Models\User;
 use App\Services\AiAssistantService;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
 
 class NotifyDelayedShipmentsCommandTest extends DelayAlertTestCase
 {
+    public function test_each_manual_delay_report_cycle_creates_one_idempotent_delivery_for_the_same_eta_and_destination(): void
+    {
+        Shipment::query()->update([
+            'actual_arrival' => today()->toDateString(),
+            'status' => 'Selesai',
+        ]);
+
+        $shipment = $this->customerShipment();
+        $shipment->forceFill([
+            'actual_arrival' => null,
+            'estimated_arrival' => today()->addDays(5),
+            'status' => 'Dalam perjalanan',
+            'delay_reported_at' => null,
+        ])->save();
+        $shipment->refresh();
+
+        config([
+            'delay-alerts.enabled' => true,
+            'delay-alerts.notify_customer' => true,
+            'delay-alerts.operations_emails' => [],
+            'delay-alerts.webhook.url' => null,
+        ]);
+
+        Queue::fake();
+        $assistant = Mockery::mock(AiAssistantService::class);
+        $assistant->shouldReceive('delayedShipmentNotice')
+            ->twice()
+            ->withNoArgs()
+            ->andReturn('Pesan untuk satu siklus laporan keterlambatan.');
+        $this->app->instance(AiAssistantService::class, $assistant);
+
+        $admin = User::query()->where('role', 'admin')->firstOrFail();
+
+        $this
+            ->actingAs($admin)
+            ->patch(route('shipments.quick-action', $shipment), [
+                'action' => 'report_delay',
+                'expected_version' => $shipment->operational_version,
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $shipment->refresh();
+        $this->assertSame(1, $shipment->delay_report_sequence);
+
+        $this->artisan('shipments:notify-delays')->assertSuccessful();
+        $this->artisan('shipments:notify-delays')->assertSuccessful();
+
+        $firstDelivery = DelayAlertDelivery::query()->whereBelongsTo($shipment)->sole();
+        $this->assertSame(1, $firstDelivery->delay_report_sequence);
+        Queue::assertPushed(SendDelayAlert::class, 1);
+
+        $this
+            ->patch(route('shipments.quick-action', $shipment), [
+                'action' => 'clear_delay',
+                'expected_version' => $shipment->operational_version,
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $shipment->refresh();
+
+        $this
+            ->patch(route('shipments.quick-action', $shipment), [
+                'action' => 'report_delay',
+                'expected_version' => $shipment->operational_version,
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $shipment->refresh();
+        $this->assertSame(3, $shipment->delay_report_sequence);
+
+        $this->artisan('shipments:notify-delays')->assertSuccessful();
+        $this->artisan('shipments:notify-delays')->assertSuccessful();
+
+        $deliveries = DelayAlertDelivery::query()
+            ->whereBelongsTo($shipment)
+            ->orderBy('delay_report_sequence')
+            ->get();
+
+        $this->assertCount(2, $deliveries);
+        $this->assertSame([1, 3], $deliveries->pluck('delay_report_sequence')->all());
+        $this->assertTrue($deliveries[0]->expected_arrival->isSameDay($deliveries[1]->expected_arrival));
+        $this->assertSame($deliveries[0]->destination_hash, $deliveries[1]->destination_hash);
+        Queue::assertPushed(SendDelayAlert::class, 2);
+    }
+
+    public function test_auto_delay_after_a_cleared_manual_report_creates_a_new_delivery_instead_of_reusing_the_cancelled_cycle(): void
+    {
+        Shipment::query()->update([
+            'actual_arrival' => today()->toDateString(),
+            'status' => 'Selesai',
+        ]);
+
+        $eta = today()->addDays(5)->toDateString();
+        $shipment = $this->customerShipment();
+        $shipment->forceFill([
+            'actual_arrival' => null,
+            'estimated_arrival' => $eta,
+            'status' => 'Dalam perjalanan',
+            'delay_reported_at' => null,
+        ])->save();
+        $shipment->refresh();
+
+        config([
+            'delay-alerts.enabled' => true,
+            'delay-alerts.notify_customer' => true,
+            'delay-alerts.operations_emails' => [],
+            'delay-alerts.webhook.url' => null,
+        ]);
+
+        Queue::fake();
+        Mail::fake();
+
+        $assistant = Mockery::mock(AiAssistantService::class);
+        $assistant->shouldReceive('delayedShipmentNotice')
+            ->twice()
+            ->withNoArgs()
+            ->andReturn('Pesan untuk transisi laporan manual ke keterlambatan otomatis.');
+        $this->app->instance(AiAssistantService::class, $assistant);
+
+        $admin = User::query()->where('role', 'admin')->firstOrFail();
+
+        $this
+            ->actingAs($admin)
+            ->patch(route('shipments.quick-action', $shipment), [
+                'action' => 'report_delay',
+                'expected_version' => $shipment->operational_version,
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $shipment->refresh();
+        $this->assertSame(1, $shipment->delay_report_sequence);
+
+        $this->artisan('shipments:notify-delays')->assertSuccessful();
+
+        $manualDelivery = DelayAlertDelivery::query()->whereBelongsTo($shipment)->sole();
+        $this->assertSame(1, $manualDelivery->delay_report_sequence);
+
+        $this
+            ->patch(route('shipments.quick-action', $shipment), [
+                'action' => 'clear_delay',
+                'expected_version' => $shipment->operational_version,
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $shipment->refresh();
+        $this->assertNull($shipment->delay_reported_at);
+        $this->assertSame(2, $shipment->delay_report_sequence);
+
+        (new SendDelayAlert($manualDelivery->id))->handle();
+
+        Mail::assertNothingSent();
+        $this->assertSame(DelayAlertDelivery::STATUS_CANCELLED, $manualDelivery->refresh()->status);
+
+        $this->travelTo(
+            CarbonImmutable::parse($eta, config('app.timezone'))
+                ->addDay()
+                ->setTime(12, 0),
+        );
+
+        $shipment->refresh();
+        $this->assertTrue($shipment->hasPassedEstimatedArrival());
+        $this->assertTrue($shipment->isDelayed());
+
+        $this->artisan('shipments:notify-delays')->assertSuccessful();
+
+        $deliveries = DelayAlertDelivery::query()
+            ->whereBelongsTo($shipment)
+            ->orderBy('delay_report_sequence')
+            ->get();
+
+        $this->assertCount(2, $deliveries);
+        $this->assertSame([1, 2], $deliveries->pluck('delay_report_sequence')->all());
+        $this->assertSame(
+            [DelayAlertDelivery::STATUS_CANCELLED, DelayAlertDelivery::STATUS_PENDING],
+            $deliveries->pluck('status')->all(),
+        );
+        $this->assertTrue($deliveries[0]->expected_arrival->isSameDay($deliveries[1]->expected_arrival));
+        $this->assertSame($deliveries[0]->destination_hash, $deliveries[1]->destination_hash);
+        Queue::assertPushed(SendDelayAlert::class, 2);
+    }
+
+    public function test_command_creates_a_delivery_for_an_operator_reported_delay_before_eta(): void
+    {
+        Shipment::query()->update([
+            'actual_arrival' => today()->toDateString(),
+            'status' => 'Selesai',
+        ]);
+
+        $shipment = $this->customerShipment();
+        $shipment->forceFill([
+            'actual_arrival' => null,
+            'estimated_arrival' => today()->addDays(5),
+            'status' => 'Dalam perjalanan',
+            'delay_reported_at' => now(),
+        ])->save();
+
+        config([
+            'delay-alerts.enabled' => true,
+            'delay-alerts.notify_customer' => true,
+            'delay-alerts.operations_emails' => [],
+            'delay-alerts.webhook.url' => null,
+        ]);
+
+        Queue::fake();
+        $assistant = Mockery::mock(AiAssistantService::class);
+        $assistant->shouldReceive('delayedShipmentNotice')
+            ->once()
+            ->withNoArgs()
+            ->andReturn('Pesan netral untuk keterlambatan yang dilaporkan.');
+        $this->app->instance(AiAssistantService::class, $assistant);
+
+        $this->artisan('shipments:notify-delays')->assertSuccessful();
+
+        $delivery = DelayAlertDelivery::query()->whereBelongsTo($shipment)->sole();
+
+        $this->assertTrue($delivery->expected_arrival->isSameDay(today()->addDays(5)));
+        $this->assertSame(DelayAlertDelivery::STATUS_PENDING, $delivery->status);
+        Queue::assertPushed(
+            SendDelayAlert::class,
+            fn (SendDelayAlert $job) => $job->deliveryId === $delivery->id,
+        );
+    }
+
     public function test_command_creates_customer_operations_and_webhook_deliveries_idempotently(): void
     {
         $shipment = $this->makeOnlyCustomerShipmentDelayed();

@@ -28,7 +28,10 @@ class ShipmentDelayedMail extends Mailable
 
     public function content(): Content
     {
-        $daysLate = max(1, (int) $this->delivery->expected_arrival->startOfDay()->diffInDays(today()));
+        $isEtaOverdue = $this->delivery->expected_arrival->startOfDay()->lt(today());
+        $daysLate = $isEtaOverdue
+            ? max(1, (int) $this->delivery->expected_arrival->startOfDay()->diffInDays(today()))
+            : 0;
         $plain = [
             'appName' => $this->plainLine((string) config('app.name')),
             'bookingNumber' => $this->plainLine($this->shipment->booking_number),
@@ -46,6 +49,7 @@ class ShipmentDelayedMail extends Mailable
             text: 'mail.shipment-delayed-text',
             with: [
                 'daysLate' => $daysLate,
+                'isEtaOverdue' => $isEtaOverdue,
                 'plain' => $plain,
                 'trackingUrl' => route('tracking.show', $this->shipment->container->container_number),
             ],

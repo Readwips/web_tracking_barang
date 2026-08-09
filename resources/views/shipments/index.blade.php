@@ -43,7 +43,16 @@
                                     <td class="px-6 py-4">{{ $shipment->vessel->name }}</td>
                                     <td class="px-6 py-4">{{ $shipment->estimated_arrival->format('d M Y') }}</td>
                                     <td class="px-6 py-4">
-                                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ $shipment->status }}</span>
+                                        @if($shipment->isDelayed())
+                                            <div class="flex flex-col items-start gap-1.5">
+                                                <span class="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
+                                                    {{ $shipment->daysLate() > 0 ? 'Terlambat '.$shipment->daysLate().' hari' : 'Keterlambatan dilaporkan' }}
+                                                </span>
+                                                <span class="text-xs text-slate-500">{{ $shipment->status }}</span>
+                                            </div>
+                                        @else
+                                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ $shipment->status }}</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

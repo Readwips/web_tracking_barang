@@ -72,6 +72,7 @@ class NotifyDelayedShipments extends Command
                         $attributes = [
                             'shipment_id' => $shipment->id,
                             'expected_arrival' => $expectedArrival,
+                            'delay_report_sequence' => $shipment->delay_report_sequence,
                             'event' => DelayAlertDelivery::EVENT,
                             'channel' => $destination['channel'],
                             'destination_hash' => $destinationHash,

@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShipmentController;
+use App\Http\Controllers\ShipmentQuickActionController;
 use App\Http\Controllers\TrackingController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/shipments', [ShipmentController::class, 'store'])->name('shipments.store');
         Route::get('/shipments/{shipment}/edit', [ShipmentController::class, 'edit'])->name('shipments.edit');
         Route::put('/shipments/{shipment}', [ShipmentController::class, 'update'])->name('shipments.update');
+        Route::patch('/shipments/{shipment}/quick-action', ShipmentQuickActionController::class)->name('shipments.quick-action');
         Route::delete('/shipments/{shipment}', [ShipmentController::class, 'destroy'])->name('shipments.destroy');
 
         Route::get('/ai-assistant', [AiAssistantController::class, 'index'])->name('ai.index');

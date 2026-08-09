@@ -40,6 +40,7 @@ class Shipment extends Model
         'actual_arrival',
         'status',
         'latest_status_at',
+        'delay_reported_at',
     ];
 
     protected function casts(): array
@@ -49,6 +50,9 @@ class Shipment extends Model
             'estimated_arrival' => 'date',
             'actual_arrival' => 'date',
             'latest_status_at' => 'datetime',
+            'delay_reported_at' => 'datetime',
+            'operational_version' => 'integer',
+            'delay_report_sequence' => 'integer',
         ];
     }
 
@@ -66,14 +70,23 @@ class Shipment extends Model
         return $query
             ->whereNull('actual_arrival')
             ->whereNotIn('status', self::ARRIVED_STATUSES)
-            ->whereDate('estimated_arrival', '<', today());
+            ->where(function (Builder $delayQuery): void {
+                $delayQuery
+                    ->whereNotNull('delay_reported_at')
+                    ->orWhereDate('estimated_arrival', '<', today());
+            });
     }
 
     public function isDelayed(): bool
     {
         return $this->actual_arrival === null
             && ! in_array($this->status, self::ARRIVED_STATUSES, true)
-            && $this->estimated_arrival->startOfDay()->lt(today());
+            && ($this->delay_reported_at !== null || $this->hasPassedEstimatedArrival());
+    }
+
+    public function hasPassedEstimatedArrival(): bool
+    {
+        return $this->estimated_arrival->startOfDay()->lt(today());
     }
 
     public function daysLate(): int
@@ -82,10 +95,11 @@ class Shipment extends Model
             return 0;
         }
 
-        return max(
-            1,
-            (int) $this->estimated_arrival->startOfDay()->diffInDays(today()),
-        );
+        if (! $this->hasPassedEstimatedArrival()) {
+            return 0;
+        }
+
+        return max(1, (int) $this->estimated_arrival->startOfDay()->diffInDays(today()));
     }
 
     public function customer(): BelongsTo

@@ -1,5 +1,6 @@
 @php
     $isDelayed = $shipment->isDelayed();
+    $etaHasPassed = $shipment->hasPassedEstimatedArrival();
     $statusSaysArrived = in_array($shipment->status, \App\Models\Shipment::ARRIVED_STATUSES, true);
     $hasActualArrival = $shipment->actual_arrival !== null;
     $arrivalState = match (true) {
@@ -11,7 +12,7 @@
     };
     $arrivalDate = $hasActualArrival ? $shipment->actual_arrival : ($statusSaysArrived ? null : $shipment->estimated_arrival);
     $arrivalLabel = match ($arrivalState) {
-        'delayed' => 'ETA terlewati',
+        'delayed' => $etaHasPassed ? 'ETA terlewati' : 'Keterlambatan dilaporkan',
         'arrived' => 'Tiba pada',
         'actual-status-pending' => 'Kedatangan tercatat',
         'arrived-date-missing' => 'Status kedatangan tercatat',
@@ -122,7 +123,11 @@
                 @endif
 
                 @if($arrivalState === 'delayed')
-                    <p class="mt-3 text-sm font-semibold text-red-800">{{ $shipment->daysLate() }} hari melewati estimasi</p>
+                    @if($etaHasPassed)
+                        <p class="mt-3 text-sm font-semibold text-red-800">{{ $shipment->daysLate() }} hari melewati estimasi</p>
+                    @else
+                        <p class="mt-3 text-sm font-semibold text-red-800">Dilaporkan sebelum ETA terlewati</p>
+                    @endif
                 @elseif($arrivalState === 'arrived')
                     <p class="mt-3 text-sm font-semibold text-emerald-800">Kedatangan telah tercatat</p>
                 @elseif($arrivalState === 'actual-status-pending')
@@ -143,11 +148,19 @@
                 <div class="min-w-0">
                     <p class="text-xs font-bold uppercase tracking-[0.18em] text-red-700">Pemberitahuan keterlambatan</p>
                     <h3 id="delay-alert-heading" class="mt-1 text-lg font-black text-red-950 sm:text-xl">Pengiriman mengalami keterlambatan</h3>
-                    <p class="mt-2 text-sm leading-6 text-red-900">
-                        Estimasi tiba {{ $shipment->estimated_arrival->translatedFormat('d F Y') }} telah terlewati selama
-                        <span class="font-bold">{{ $shipment->daysLate() }} hari</span>. Status terakhir:
-                        <span class="font-bold">{{ $shipment->status }}</span>.
-                    </p>
+                    @if($etaHasPassed)
+                        <p class="mt-2 text-sm leading-6 text-red-900">
+                            Estimasi tiba {{ $shipment->estimated_arrival->translatedFormat('d F Y') }} telah terlewati selama
+                            <span class="font-bold">{{ $shipment->daysLate() }} hari</span>. Status terakhir:
+                            <span class="font-bold">{{ $shipment->status }}</span>.
+                        </p>
+                    @else
+                        <p class="mt-2 text-sm leading-6 text-red-900">
+                            Tim operasional telah melaporkan keterlambatan. ETA yang tercatat adalah
+                            <span class="font-bold">{{ $shipment->estimated_arrival->translatedFormat('d F Y') }}</span>
+                            dan status terakhir <span class="font-bold">{{ $shipment->status }}</span>.
+                        </p>
+                    @endif
                     <p class="mt-2 text-sm leading-6 text-red-800">Pantau pembaruan di halaman ini atau sampaikan nomor booking kepada petugas operasional.</p>
                 </div>
             </div>
