@@ -14,6 +14,7 @@ use App\Models\Vessel;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,6 +25,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new RuntimeException('DatabaseSeeder hanya berisi akun dan data demo; jangan jalankan di production.');
+        }
+
         $admin = User::updateOrCreate(
             ['email' => 'admin@logitrack.test'],
             ['name' => 'Admin LogiTrack', 'role' => 'admin', 'password' => Hash::make('password'), 'email_verified_at' => now()]
