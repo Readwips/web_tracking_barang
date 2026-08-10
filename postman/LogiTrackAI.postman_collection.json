@@ -1,31 +1,78 @@
 {
   "info": {
     "name": "LogiTrack AI API",
+    "description": "Contoh request untuk tracking publik dan endpoint operasional LogiTrack AI.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{username}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{password}}",
+        "type": "string"
+      }
+    ]
   },
   "variable": [
     {
       "key": "base_url",
       "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "username",
+      "value": "admin@logitrack.test"
+    },
+    {
+      "key": "password",
+      "value": "password"
+    },
+    {
+      "key": "shipment_id",
+      "value": "1"
+    },
+    {
+      "key": "expected_version",
+      "value": "0"
     }
   ],
   "item": [
     {
-      "name": "List shipments",
-      "request": {
-        "method": "GET",
-        "url": "{{base_url}}/api/shipments"
-      }
-    },
-    {
       "name": "Track by container number",
       "request": {
+        "auth": {
+          "type": "noauth"
+        },
         "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
         "url": "{{base_url}}/api/shipments/TANTO-CT-000124"
       }
     },
     {
-      "name": "Create shipment",
+      "name": "List shipments",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/shipments"
+      }
+    },
+    {
+      "name": "Create shipment (adjust related IDs)",
       "request": {
         "method": "POST",
         "header": [
@@ -40,7 +87,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"booking_number\": \"BOOK-2026-000999\",\n  \"customer_id\": 1,\n  \"container_id\": 1,\n  \"cargo_type_id\": 1,\n  \"vessel_id\": 1,\n  \"origin_port_id\": 1,\n  \"destination_port_id\": 2,\n  \"departure_date\": \"2026-07-20\",\n  \"estimated_arrival\": \"2026-07-24\",\n  \"status\": \"Booking dibuat\",\n  \"location\": \"Surabaya\",\n  \"description\": \"Booking dibuat dari Postman.\"\n}"
+          "raw": "{\n  \"booking_number\": \"BOOK-2026-000999\",\n  \"customer_id\": 1,\n  \"container_id\": 1,\n  \"cargo_type_id\": 1,\n  \"vessel_id\": 1,\n  \"origin_port_id\": 1,\n  \"destination_port_id\": 2,\n  \"departure_date\": \"2026-08-10\",\n  \"estimated_arrival\": \"2026-08-14\",\n  \"status\": \"Booking dibuat\",\n  \"location\": \"Surabaya\",\n  \"description\": \"Booking dibuat dari Postman.\"\n}"
         },
         "url": "{{base_url}}/api/shipments"
       }
@@ -61,9 +108,9 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"status\": \"Tiba di pelabuhan tujuan\",\n  \"location\": \"Makassar\",\n  \"description\": \"Kontainer tiba di Makassar New Port.\"\n}"
+          "raw": "{\n  \"status\": \"Tiba di pelabuhan tujuan\",\n  \"location\": \"Makassar\",\n  \"description\": \"Kontainer tiba di Makassar New Port.\",\n  \"expected_version\": {{expected_version}}\n}"
         },
-        "url": "{{base_url}}/api/shipments/1/status"
+        "url": "{{base_url}}/api/shipments/{{shipment_id}}/status"
       }
     }
   ]
