@@ -57,6 +57,15 @@ php artisan schedule:work
 
 Aplikasi dapat dibuka melalui `http://127.0.0.1:8000`. Halaman tracking publik tersedia di `/tracking`.
 
+### Menjalankan di Windows dengan klik
+
+Untuk penggunaan lokal di Windows, tersedia file launcher:
+
+- `start-logitrack-web.bat` menjalankan web dan Vite.
+- `start-logitrack-all.bat` menjalankan web, Vite, queue, dan scheduler agar notifikasi keterlambatan ikut diproses.
+
+Double-click salah satu file tersebut dari folder project. Setelah aktif, buka `http://127.0.0.1:8000`.
+
 ## Akun dan data demo
 
 Seeder menyediakan akun berikut untuk pengembangan lokal:
