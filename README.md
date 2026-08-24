@@ -20,7 +20,7 @@ Sering kali di lapangan, petugas harus mengetik pembaruan status dengan buru-bur
 
 ---
 
-## 🚀 Cara Menjalankan Aplikasi di Komputer Anda
+## 🚀 Cara Menjalankan Aplikasi di Komputer (lokal)
 
 Untuk menguji dan menjalankan aplikasi ini di sistem lokal Anda, silakan ikuti langkah-langkah berikut:
 
@@ -33,7 +33,7 @@ npm install
 ```
 
 **2. Persiapan Konfigurasi Database**
-Salin file `.env.example` dan ubah namanya menjadi `.env`. Jika Anda ingin menggunakan konfigurasi SQLite agar lebih praktis di tahap *development*, ubah nilai koneksi menjadi `DB_CONNECTION=sqlite`, lalu buat file kosong dengan nama `database.sqlite` di dalam direktori `database/`. 
+Salin file `.env.example` dan ubah namanya menjadi `.env`. Jika ingin menggunakan konfigurasi SQLite agar lebih praktis di tahap *development*, ubah nilai koneksi menjadi `DB_CONNECTION=sqlite`, lalu buat file kosong dengan nama `database.sqlite` di dalam direktori `database/`. 
 
 Selanjutnya, siapkan *Key* Laravel dan jalankan migrasi database:
 ```bash
@@ -73,13 +73,11 @@ Untuk menguji halaman **Tracking Publik**, Anda dapat menggunakan beberapa conto
 *   `TANTO-CT-000124`
 *   `TANTO-CT-000125`
 
-*(Penting: Hapus atau ubah seluruh kredensial pengujian ini jika Anda berencana mengimplementasikan aplikasi ini pada lingkungan Production.)*
-
 ---
 
 ## 🤖 Catatan Terkait Fitur AI (OpenAI API)
 
-Agar fitur asisten AI (seperti koreksi gaya bahasa laporan dan penyusunan ringkasan *dashboard*) dapat berfungsi sepenuhnya, Anda memerlukan kunci API (API Key) dari OpenAI.
+Agar fitur asisten AI (seperti koreksi gaya bahasa laporan dan penyusunan ringkasan *dashboard*) dapat berfungsi sepenuhnya, memerlukan kunci API (API Key) dari OpenAI. (Karean tahap ini baru menggunakan OpenAi sebagai bahan uji coba)
 
 Silakan buka file `.env` di aplikasi Anda dan tambahkan kredensial berikut:
 ```env
@@ -98,8 +96,9 @@ php artisan test
 ```
 
 ## 📬 API & Postman
-Bagi Anda yang ingin bereksperimen dengan REST API LogiTrack, sampel koleksi interaksi juga disertakan pada direktori `postman/LogiTrackAI.postman_collection.json`.
+Sampel koleksi interaksi juga disertakan pada direktori
+`postman/LogiTrackAI.postman_collection.json`.
 
 ---
 
-Semoga sistem aplikasi pelacakan ini dapat bermanfaat untuk manajemen logistik, serta menjadi referensi pembelajaran yang baik mengenai integrasi Laravel, Tailwind, dan OpenAI. Apabila Anda menemukan celah kesalahan (*bug*) atau memiliki gagasan pengembangan fitur, silakan buat *Issue* atau kirimkan *Pull Request*. Selamat mencoba!
+
