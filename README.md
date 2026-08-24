@@ -1,11 +1,9 @@
 # LogiTrack AI 🚢📦
 
-Halo! Selamat datang di repositori **LogiTrack AI**. Ini adalah aplikasi web yang saya bangun buat ngebantu ngelola dan melacak perjalanan kontainer logistik.
-
-Idenya sederhana: pengen bikin sistem yang gampang dipakai pelanggan buat ngecek posisi barang mereka (tanpa perlu repot login), tapi di saat yang sama, ngasih alat yang powerful buat tim admin/operator di belakang layar buat *update* statusnya. Oh ya, saya juga nyelipin sedikit bantuan AI (pake OpenAI) biar kerjaan nulis catatan lapangan jadi lebih gampang dan rapi.
+Halo! Selamat datang di repositori **LogiTrack AI**. Ini adalah aplikasi web yang di bangun untuk membantu dalam ngelola dan melacak perjalanan kontainer logistik.
 
 ## Kenapa Bikin LogiTrack AI?
-Sering kali kan, di lapangan petugas ngetik status tuh buru-buru. "Barang ketahan ujan di perak." Nah, berkat integrasi AI di sini, kalimat kasar kayak gitu bakal otomatis disulap jadi bahasa resmi yang pantes dibaca pelanggan pas mereka cek tracking. Selain itu, sistem ini juga otomatis ngedeteksi kalau kontainer telat dari ETA-nya.
+Sering kali kan, di lapangan petugas ngetik status dengan buru-buru. "Barang ketahan ujan di perak nih" Dengan integrasi AI di sini, dengan kalimat seperti kayak gitu bakal otomatis menjadi bahasa resmi yang pantas dibaca pelanggan saat mereka cek tracking. Selain itu, sistem ini juga otomatis mendeteksi kalau kontainer telat dari ETA-nya.
 
 ### 🌟 Fitur Utama
 *   **Tracking Publik Cepat:** Pelanggan tinggal masukin nomor kontainer, langsung keluar timeline perjalanan, rute, dan ETA-nya.
