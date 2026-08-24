@@ -206,9 +206,9 @@
                             </div>
 
                             <div x-show="action === 'update'" class="md:col-span-2">
-                                <label for="quick_description" class="block text-sm font-bold text-slate-700">Catatan pelanggan</label>
-                                <textarea id="quick_description" name="description" rows="3" maxlength="1000" :disabled="action !== 'update'" placeholder="Tuliskan pembaruan yang sudah terverifikasi." class="mt-2 w-full rounded-xl border-slate-300 shadow-sm focus:border-cyan-600 focus:ring-cyan-600">{{ old('description') }}</textarea>
-                                <p class="mt-2 text-xs leading-5 text-slate-500">Catatan ini akan muncul pada timeline tracking publik. Gunakan informasi yang sudah terverifikasi.</p>
+                                <label for="quick_description" class="block text-sm font-bold text-slate-700">Catatan/Pembaruan (AI-Assisted)</label>
+                                <textarea id="quick_description" name="description" rows="3" maxlength="1000" :disabled="action !== 'update'" placeholder="Ketik catatan kasar dari lapangan. AI akan otomatis merapikan bahasa Anda menjadi format resmi saat disimpan. Contoh: 'kontainer 124 udah turun dr kapal nunggu truk'" class="mt-2 w-full rounded-xl border-slate-300 shadow-sm focus:border-cyan-600 focus:ring-cyan-600">{{ old('description') }}</textarea>
+                                <p class="mt-2 text-xs leading-5 text-slate-500">Catatan ini akan otomatis dirapikan oleh AI dan muncul pada timeline tracking publik.</p>
                             </div>
                         </div>
 

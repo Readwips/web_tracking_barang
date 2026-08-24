@@ -48,6 +48,20 @@ PROMPT;
         );
     }
 
+    public function formatHistoryDescription(string $rawText): string
+    {
+        $prompt = <<<PROMPT
+Anda adalah asisten operasional pelabuhan/logistik.
+Tugas Anda adalah merapikan catatan lapangan kasar dari petugas (bisa jadi singkatan, ejaan tidak baku, atau bahasa gaul) menjadi 1-2 kalimat resmi, profesional, dan representatif untuk dimasukkan ke dalam riwayat pengiriman (Shipment History) yang bisa dilihat oleh pelanggan.
+Hanya kembalikan hasil kalimat rapi tersebut tanpa tambahan teks apapun (tanpa tanda kutip, tanpa kata pengantar).
+
+Catatan lapangan kasar:
+"{$rawText}"
+PROMPT;
+
+        return trim(strip_tags((string) $this->complete($prompt))) ?: $rawText;
+    }
+
     private function complete(string $prompt): ?string
     {
         $key = config('services.openai.key');

@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ShipmentQuickActionRequest;
 use App\Models\Shipment;
 use App\Models\ShipmentHistory;
+use App\Services\AiAssistantService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ShipmentQuickActionController extends Controller
 {
+    public function __construct(private readonly AiAssistantService $aiAssistant) {}
+
     public function __invoke(ShipmentQuickActionRequest $request, Shipment $shipment): RedirectResponse
     {
         $validated = $request->validated();
@@ -129,10 +132,15 @@ class ShipmentQuickActionController extends Controller
     {
         $this->updateShipment($shipment, $expectedVersion, ['latest_status_at' => now()]);
 
+        $rawDescription = $validated['description'] ?? null;
+        $description = $rawDescription
+            ? $this->aiAssistant->formatHistoryDescription($rawDescription)
+            : 'Pembaruan operasional dicatat.';
+
         $this->createHistory(
             $shipment,
             ($validated['location'] ?? null) ?: $this->defaultLocation($shipment),
-            ($validated['description'] ?? null) ?: 'Pembaruan operasional dicatat.',
+            $description,
         );
 
         return 'Pembaruan tracking berhasil ditambahkan.';

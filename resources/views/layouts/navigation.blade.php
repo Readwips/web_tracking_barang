@@ -16,21 +16,21 @@
                     <x-nav-link :href="route('shipments.index')" :active="request()->routeIs('shipments.*')">
                         Pengiriman
                     </x-nav-link>
-                    <x-nav-link :href="route('tracking.index')" :active="request()->routeIs('tracking.*')">
-                        Tracking
-                    </x-nav-link>
                     @if(Auth::user()->hasRole('admin', 'operator'))
                         <x-nav-link :href="route('master.index', 'customers')" :active="request()->routeIs('master.*')">
                             Master Data
                         </x-nav-link>
                         <x-nav-link :href="route('ai.index')" :active="request()->routeIs('ai.*')">
-                            AI
+                            AI Assistant
                         </x-nav-link>
                     @endif
                 </div>
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <a href="{{ route('tracking.index') }}" target="_blank" class="me-4 rounded-full border border-cyan-200 bg-cyan-50 px-3.5 py-1.5 text-xs font-bold text-cyan-700 hover:bg-cyan-100 hover:text-cyan-800 transition shadow-sm">
+                    Buka Tracking Publik ↗
+                </a>
                 <span class="me-4 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
                     {{ Auth::user()->role }}
                 </span>
@@ -87,17 +87,20 @@
             <x-responsive-nav-link :href="route('shipments.index')" :active="request()->routeIs('shipments.*')">
                 Pengiriman
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('tracking.index')" :active="request()->routeIs('tracking.*')">
-                Tracking
-            </x-responsive-nav-link>
             @if(Auth::user()->hasRole('admin', 'operator'))
                 <x-responsive-nav-link :href="route('master.index', 'customers')" :active="request()->routeIs('master.*')">
                     Master Data
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('ai.index')" :active="request()->routeIs('ai.*')">
-                    AI
+                    AI Assistant
                 </x-responsive-nav-link>
             @endif
+            <div class="px-4 py-2 border-t border-gray-100">
+                <a href="{{ route('tracking.index') }}" target="_blank" class="flex items-center gap-2 w-full justify-center rounded-xl bg-cyan-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-cyan-500 transition">
+                    Buka Tracking Publik
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                </a>
+            </div>
         </div>
 
         <!-- Responsive Settings Options -->
