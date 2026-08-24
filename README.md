@@ -1,32 +1,32 @@
 # LogiTrack AI 🚢📦
 
-Halo! Selamat datang di repositori **LogiTrack AI**. Ini adalah aplikasi web yang saya bangun buat ngebantu ngelola dan melacak perjalanan kontainer logistik.
+Selamat datang di repositori **LogiTrack AI**. Aplikasi berbasis web ini saya bangun untuk mempermudah pengelolaan dan pelacakan perjalanan kontainer logistik.
 
-Idenya sederhana: pengen bikin sistem yang gampang dipakai pelanggan buat ngecek posisi barang mereka (tanpa perlu repot login), tapi di saat yang sama, ngasih alat yang powerful buat tim admin/operator di belakang layar buat *update* statusnya. Oh ya, saya juga nyelipin sedikit bantuan AI (pake OpenAI) biar kerjaan nulis catatan lapangan jadi lebih gampang dan rapi.
+Pendekatan utama dari sistem ini adalah memberikan kemudahan bagi pelanggan untuk melacak posisi barang mereka secara mandiri (tanpa perlu login), dan di saat yang sama, menyediakan alat operasional yang efisien bagi tim *back-office* (admin dan operator) untuk memperbarui status pengiriman. Selain itu, saya mengintegrasikan teknologi AI (OpenAI) untuk membantu merapikan catatan lapangan dan menyusun ringkasan laporan operasional harian.
 
-## Kenapa Bikin LogiTrack AI?
-Sering kali kan, di lapangan petugas ngetik status tuh buru-buru. "Barang ketahan ujan di perak." Nah, berkat integrasi AI di sini, kalimat kasar kayak gitu bakal otomatis disulap jadi bahasa resmi yang pantes dibaca pelanggan pas mereka cek tracking. Selain itu, sistem ini juga otomatis ngedeteksi kalau kontainer telat dari ETA-nya.
+## Mengapa LogiTrack AI?
+Dalam operasional di lapangan, petugas pelabuhan atau logistik sering kali harus melaporkan pembaruan status dengan cepat (misal: *"barang ketahan ujan di perak, nunggu truk"*). Berkat integrasi AI di dalam sistem, catatan lapangan yang singkat dan tidak baku tersebut dapat otomatis dikonversi menjadi bahasa yang resmi dan profesional sebelum ditampilkan di halaman *tracking* pelanggan. Sistem ini juga memiliki fitur pendeteksi keterlambatan otomatis berdasarkan perkiraan waktu tiba (ETA).
 
 ### 🌟 Fitur Utama
-*   **Tracking Publik Cepat:** Pelanggan tinggal masukin nomor kontainer, langsung keluar timeline perjalanan, rute, dan ETA-nya.
-*   **Dashboard Operasional:** Buat admin & operator. Ada rangkuman data dan *quick action* buat update status (misal: "Barang Tiba" atau "Lapor Telat") cuma dengan sekali klik.
-*   **AI Assistant:** Ngebantu nulis laporan resmi untuk pelanggan dan ngasih ringkasan kondisi operasional secara cerdas.
-*   **Sistem Notifikasi:** (Bisa dikonfigurasi) buat ngirim email atau Webhook otomatis kalau ada kapal yang delay.
-*   **REST API:** Ada endpoint-nya juga loh, kalau misal mau disambungin ke aplikasi lain atau mobile.
+*   **Tracking Publik Cepat:** Pelanggan hanya perlu memasukkan nomor kontainer untuk melihat *timeline* perjalanan, detail rute, serta perkiraan tiba (ETA).
+*   **Dashboard Operasional:** Akses kontrol khusus bagi Admin dan Operator. Dilengkapi dengan ringkasan data serta fitur *Quick Action* untuk memperbarui status (seperti "Menandai Tiba" atau "Melaporkan Keterlambatan") dalam sekali klik.
+*   **AI Assistant:** Membantu menyusun pemberitahuan pelanggan secara otomatis, merapikan bahasa lapangan petugas, serta menyajikan ringkasan kondisi operasional (jumlah pengiriman aktif, kendala, dsb.) secara otomatis.
+*   **Sistem Notifikasi (Kustom):** Tersedia pengaturan untuk pengiriman peringatan *delay* via Email atau *Webhook*.
+*   **REST API:** Dilengkapi *endpoint* khusus yang siap diintegrasikan dengan aplikasi mobile maupun layanan perangkat lunak pihak ketiga lainnya.
 
-## 🛠️ Stack Teknologi yang Saya Pakai
+## 🛠️ Teknologi yang Digunakan
 *   **Backend:** PHP 8.2 & Laravel 12
-*   **Frontend:** Blade, Tailwind CSS, Alpine.js (disatukan pakai Vite biar ngebut)
-*   **Database:** MySQL (atau SQLite buat local dev)
-*   **Tambahan:** Laravel Queue, Scheduler, dan API OpenAI.
+*   **Frontend:** Blade, Tailwind CSS, Alpine.js (dibangun menggunakan Vite)
+*   **Database:** MySQL (Bisa menggunakan SQLite untuk mode *local development*)
+*   **Infrastruktur Tambahan:** Laravel Queue, Scheduler, dan API OpenAI.
 
 ---
 
-## 🚀 Cara Menjalankan di Komputer Kamu
+## 🚀 Cara Menjalankan Aplikasi di Komputer Anda
 
-Kalo mau nyoba-nyoba jalanin aplikasinya di localhost, gampang banget. Ikuti langkah ini ya:
+Untuk menguji dan menjalankan aplikasi ini di sistem lokal Anda, silakan ikuti langkah-langkah berikut:
 
-**1. Clone & Install**
+**1. Clone dan Instalasi**
 ```bash
 git clone https://github.com/Readwips/web_tracking_barang.git
 cd web_tracking_barang
@@ -34,71 +34,74 @@ composer install
 npm install
 ```
 
-**2. Siapin Database**
-Copy file `.env.example` dan ubah namanya jadi `.env`. Kalo mau cepet pake SQLite, tinggal ubah `DB_CONNECTION=sqlite` trus bikin file kosong `database.sqlite` di folder `database/`. Jangan lupa siapin App Key-nya.
+**2. Persiapan Konfigurasi Database**
+Salin file `.env.example` dan ubah namanya menjadi `.env`. Jika Anda ingin menggunakan konfigurasi SQLite agar lebih praktis di tahap *development*, ubah nilai koneksi menjadi `DB_CONNECTION=sqlite`, lalu buat file kosong dengan nama `database.sqlite` di dalam direktori `database/`. 
 
+Selanjutnya, siapkan *Key* Laravel dan jalankan migrasi database:
 ```bash
 php artisan key:generate
 php artisan migrate --seed
 npm run build
 ```
 
-**3. Jalanin Aplikasinya**
-Buka 2 terminal ya:
-Terminal pertama (buat jalanin server web):
+**3. Menjalankan Aplikasi**
+Buka 2 jendela terminal secara bersamaan:
+Terminal pertama (untuk server Laravel):
 ```bash
 php artisan serve
 ```
-Terminal kedua (buat jalanin Vite/Frontend):
+Terminal kedua (untuk kompilasi aset Frontend/Vite):
 ```bash
 npm run dev
 ```
 
-*Atau kalo kamu pengguna Windows, saya udah siapin file `.bat`! Cukup double-click `start-logitrack-web.bat` atau `start-logitrack-all.bat` (kalo mau jalanin bareng sistem notifikasinya).*
+*Catatan: Bagi pengguna Windows, saya telah menyediakan skrip automasi (`.bat`). Anda cukup klik dua kali pada `start-logitrack-web.bat`, atau `start-logitrack-all.bat` (jika Anda juga ingin mengaktifkan layanan antrean pesan dan scheduler notifikasinya secara bersamaan).*
 
-Aplikasi siap diakses di `http://127.0.0.1:8000`!
+Aplikasi sekarang dapat diakses melalui `http://127.0.0.1:8000`.
 
 ---
 
-## 🔑 Akun Dummy (Buat Coba-coba)
+## 🔑 Akun Uji Coba (Demo)
 
-Pas tadi kamu ngejalanin perintah `--seed`, saya udah nyiapin akun boongan biar kamu bisa langsung login ke Dashboard.
+Dengan menjalankan perintah `--seed` pada tahapan instalasi di atas, sistem telah otomatis menyediakan akun pengujian untuk mengakses Dashboard:
 
-| Akses Sebagai | Email | Password |
+| Peran | Email | Password |
 | :--- | :--- | :--- |
 | **Admin** | `admin@logitrack.test` | `password` |
 | **Operator** | `operator@logitrack.test` | `password` |
 | **Pelanggan** | `pelanggan@logitrack.test` | `password` |
 
-Mau nyoba fitur **Tracking** di halaman depan? Cobain masukin nomor kontainer ini:
+Untuk menguji halaman **Tracking Publik**, Anda dapat menggunakan beberapa contoh nomor kontainer berikut:
 *   `TANTO-CT-000124`
 *   `TANTO-CT-000125`
 
-*(Tentu aja, jangan pake akun dan data ini kalo mau dinaikin ke production beneran ya!)*
+*(Penting: Hapus atau ubah seluruh kredensial pengujian ini jika Anda berencana mengimplementasikan aplikasi ini pada lingkungan Production.)*
 
 ---
 
-## 🤖 Catatan soal Fitur AI (OpenAI)
+## 🤖 Catatan Terkait Fitur AI (OpenAI API)
 
-Biar fitur "merapikan tulisan kasar" dan "pembuat ringkasan dashboard" bisa jalan, kamu butuh API Key dari OpenAI.
-Tinggal buka file `.env` kamu, terus tambahin baris ini:
+Agar fitur asisten AI (seperti koreksi gaya bahasa laporan dan penyusunan ringkasan *dashboard*) dapat berfungsi sepenuhnya, Anda memerlukan kunci API (API Key) dari OpenAI.
+
+Silakan buka file `.env` di aplikasi Anda dan tambahkan kredensial berikut:
 ```env
-OPENAI_API_KEY=sk-xxxx-apikey-kamu-disini
+OPENAI_API_KEY=sk-xxxx-masukkan-api-key-anda-disini
 ```
-Tenang aja, kalau API key-nya kosong, sistem nggak bakal error kok. Dia cuma bakal balik ke fungsi bawaannya dan nyimpen teks asli yang kamu ketik secara aman (*fallback*).
+
+Sistem dibangun dengan toleransi terhadap kegagalan layanan (*fault-tolerant*). Jika `OPENAI_API_KEY` dikosongkan atau layanan API sedang tidak tersedia, aplikasi **tidak akan mengalami error**. Sistem akan otomatis beralih ke fungsi *fallback* bawaan (menyimpan catatan petugas tanpa diubah bahasanya dan menggunakan laporan standar).
 
 ---
 
-## 🧪 Testing
+## 🧪 Pengujian Otomatis (Testing)
 
-Kalo kamu pengen ngecek *codingan* backend-nya aman atau nggak, saya udah siapin sekitar 90 pengujian otomatis (*Automated Tests*). Bisa langsung dijalankan pakai:
+Saya telah melengkapi aplikasi ini dengan kurang lebih 90 skenario pengujian otomatis (*Automated Tests*) untuk menjamin stabilitas fungsionalitas Backend. Anda dapat memeriksanya dengan menjalankan perintah:
 ```bash
 php artisan test
 ```
 
 ## 📬 API & Postman
-Bagi yang butuh integrasi API, contoh request-nya udah saya sertain di dalam folder `postman/LogiTrackAI.postman_collection.json`.
+Bagi Anda yang ingin bereksperimen dengan REST API LogiTrack, saya juga menyertakan sampel koleksi interaksi pada direktori `postman/LogiTrackAI.postman_collection.json`.
 
 ---
 
-Gitu aja dari saya. Semoga aplikasi ini bisa bermanfaat, baik dipakai beneran buat sistem logistik, maupun jadi bahan belajar bareng soal *Laravel*, *Tailwind*, dan integrasi AI sederhana! Kalo nemu bug atau punya ide fitur, boleh banget bikin *Issue* atau *Pull Request*. ✌️
+Semoga sistem aplikasi pelacakan ini dapat bermanfaat untuk manajemen logistik, serta menjadi referensi pembelajaran yang baik mengenai integrasi Laravel, Tailwind, dan OpenAI. Apabila Anda menemukan celah kesalahan (*bug*) atau memiliki gagasan pengembangan fitur, silakan buat *Issue* atau kirimkan *Pull Request*. Selamat mencoba!
