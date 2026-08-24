@@ -1,11 +1,9 @@
 # LogiTrack AI 🚢📦
 
-Selamat datang di repositori **LogiTrack AI**. Aplikasi berbasis web ini saya bangun untuk mempermudah pengelolaan dan pelacakan perjalanan kontainer logistik.
+Halo! Selamat datang di repositori **LogiTrack AI**. Ini adalah aplikasi web yang dibangun untuk membantu dalam mengelola dan melacak perjalanan kontainer logistik.
 
-Pendekatan utama dari sistem ini adalah memberikan kemudahan bagi pelanggan untuk melacak posisi barang mereka secara mandiri (tanpa perlu login), dan di saat yang sama, menyediakan alat operasional yang efisien bagi tim *back-office* (admin dan operator) untuk memperbarui status pengiriman. Selain itu, saya mengintegrasikan teknologi AI (OpenAI) untuk membantu merapikan catatan lapangan dan menyusun ringkasan laporan operasional harian.
-
-## Mengapa LogiTrack AI?
-Dalam operasional di lapangan, petugas pelabuhan atau logistik sering kali harus melaporkan pembaruan status dengan cepat (misal: *"barang ketahan ujan di perak, nunggu truk"*). Berkat integrasi AI di dalam sistem, catatan lapangan yang singkat dan tidak baku tersebut dapat otomatis dikonversi menjadi bahasa yang resmi dan profesional sebelum ditampilkan di halaman *tracking* pelanggan. Sistem ini juga memiliki fitur pendeteksi keterlambatan otomatis berdasarkan perkiraan waktu tiba (ETA).
+## Kenapa LogiTrack AI?
+Sering kali di lapangan, petugas harus mengetik pembaruan status dengan buru-buru, misalnya: *"Barang ketahan ujan di perak nih"*. Dengan integrasi AI di sistem ini, kalimat kasar semacam itu akan otomatis dikonversi menjadi bahasa resmi yang pantas dibaca oleh pelanggan saat mereka memeriksa *tracking*. Selain itu, sistem ini juga secara otomatis mendeteksi apabila kontainer mengalami keterlambatan dari perkiraan waktu tiba (ETA).
 
 ### 🌟 Fitur Utama
 *   **Tracking Publik Cepat:** Pelanggan hanya perlu memasukkan nomor kontainer untuk melihat *timeline* perjalanan, detail rute, serta perkiraan tiba (ETA).
@@ -55,7 +53,7 @@ Terminal kedua (untuk kompilasi aset Frontend/Vite):
 npm run dev
 ```
 
-*Catatan: Bagi pengguna Windows, saya telah menyediakan skrip automasi (`.bat`). Anda cukup klik dua kali pada `start-logitrack-web.bat`, atau `start-logitrack-all.bat` (jika Anda juga ingin mengaktifkan layanan antrean pesan dan scheduler notifikasinya secara bersamaan).*
+*Catatan: Bagi pengguna Windows, telah disediakan skrip automasi (`.bat`). Anda cukup klik dua kali pada `start-logitrack-web.bat`, atau `start-logitrack-all.bat` (jika Anda juga ingin mengaktifkan layanan antrean pesan dan scheduler notifikasinya secara bersamaan).*
 
 Aplikasi sekarang dapat diakses melalui `http://127.0.0.1:8000`.
 
@@ -94,13 +92,13 @@ Sistem dibangun dengan toleransi terhadap kegagalan layanan (*fault-tolerant*). 
 
 ## 🧪 Pengujian Otomatis (Testing)
 
-Saya telah melengkapi aplikasi ini dengan kurang lebih 90 skenario pengujian otomatis (*Automated Tests*) untuk menjamin stabilitas fungsionalitas Backend. Anda dapat memeriksanya dengan menjalankan perintah:
+Aplikasi ini telah dilengkapi dengan kurang lebih 90 skenario pengujian otomatis (*Automated Tests*) untuk menjamin stabilitas fungsionalitas Backend. Anda dapat memeriksanya dengan menjalankan perintah:
 ```bash
 php artisan test
 ```
 
 ## 📬 API & Postman
-Bagi Anda yang ingin bereksperimen dengan REST API LogiTrack, saya juga menyertakan sampel koleksi interaksi pada direktori `postman/LogiTrackAI.postman_collection.json`.
+Bagi Anda yang ingin bereksperimen dengan REST API LogiTrack, sampel koleksi interaksi juga disertakan pada direktori `postman/LogiTrackAI.postman_collection.json`.
 
 ---
 
