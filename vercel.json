@@ -25,8 +25,14 @@
         "APP_DEBUG": "false",
         "APP_URL": "https://your-project-name.vercel.app",
         "LOG_CHANNEL": "stderr",
-        "VIEW_COMPILED_PATH": "/tmp",
+        "VIEW_COMPILED_PATH": "/tmp/views",
+        "APP_SERVICES_CACHE": "/tmp/bootstrap/cache/services.php",
+        "APP_PACKAGES_CACHE": "/tmp/bootstrap/cache/packages.php",
+        "APP_CONFIG_CACHE": "/tmp/bootstrap/cache/config.php",
+        "APP_ROUTES_CACHE": "/tmp/bootstrap/cache/routes.php",
+        "APP_EVENTS_CACHE": "/tmp/bootstrap/cache/events.php",
         "SESSION_DRIVER": "cookie",
-        "CACHE_DRIVER": "array"
+        "CACHE_STORE": "array",
+        "QUEUE_CONNECTION": "sync"
     }
 }
