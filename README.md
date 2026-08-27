@@ -20,7 +20,7 @@ LogiTrack AI adalah aplikasi web untuk mengelola dan melacak perjalanan kontaine
 - PostgreSQL atau MySQL
 - Blade, Tailwind CSS, dan Alpine.js
 - Vite
-- OpenAI API (opsional)
+- OpenAI API
 
 ## Konfigurasi Vercel
 
