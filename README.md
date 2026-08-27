@@ -13,7 +13,7 @@ LogiTrack AI adalah aplikasi web untuk mengelola dan melacak perjalanan kontaine
 - AI Assistant untuk merapikan catatan operasional dan menyusun pesan pelanggan.
 - REST API untuk kebutuhan integrasi.
 
-## Teknologi
+## Alat
 
 - PHP 8.2+
 - Laravel 12
