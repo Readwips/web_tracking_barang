@@ -22,39 +22,36 @@ LogiTrack AI adalah aplikasi web untuk mengelola dan melacak perjalanan kontaine
 - Vite
 - OpenAI API (opsional)
 
-## Instalasi Lokal
+## Konfigurasi Vercel
 
-Clone repository dan instal dependensi:
+Aplikasi dijalankan di Vercel dan menggunakan PostgreSQL dari Neon. Hubungkan repository ini ke Vercel, kemudian tambahkan konfigurasi berikut melalui menu **Settings → Environment Variables**:
 
-```bash
-git clone https://github.com/Readwips/web_tracking_barang.git
-cd web_tracking_barang
-composer install
-npm install
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://domain-aplikasi.vercel.app
+APP_TIMEZONE=Asia/Jakarta
+APP_KEY=
+LOG_CHANNEL=stderr
+DB_CONNECTION=pgsql
+DB_HOST=
+DB_PORT=5432
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
+DB_SSLMODE=require
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
+CACHE_STORE=array
+QUEUE_CONNECTION=sync
+BCRYPT_ROUNDS=12
 ```
 
-Salin konfigurasi environment:
+Isi `APP_KEY` dan detail `DB_*` sesuai konfigurasi aplikasi dan database Neon. Simpan seluruh informasi rahasia sebagai Environment Variables dan jangan memasukkannya ke repository.
 
-```bash
-copy .env.example .env
-php artisan key:generate
-```
-
-Atur koneksi database pada file `.env`, lalu jalankan:
-
-```bash
-php artisan migrate --seed
-npm run build
-php artisan serve
-```
-
-Aplikasi dapat diakses melalui `http://127.0.0.1:8000`.
-
-Untuk pengembangan frontend, jalankan pada terminal terpisah:
-
-```bash
-npm run dev
-```
+Setelah konfigurasi disimpan, lakukan redeploy tanpa menggunakan build cache.
 
 ## Akun Demo
 
@@ -73,7 +70,7 @@ Akun dan data tersebut hanya digunakan untuk pengujian. Ganti kredensial bawaan 
 
 ## Konfigurasi AI
 
-Tambahkan API key OpenAI pada file `.env` jika ingin menggunakan fitur AI:
+Tambahkan variabel berikut di Vercel jika ingin menggunakan fitur AI:
 
 ```env
 OPENAI_API_KEY=
@@ -89,25 +86,6 @@ php artisan test
 npm run build
 vendor/bin/pint --test
 ```
-
-## Deployment
-
-Aplikasi saat ini dapat dijalankan di Vercel dengan database PostgreSQL dari Neon. Konfigurasi production disimpan melalui Environment Variables di Vercel dan tidak boleh dimasukkan ke repository.
-
-Pastikan variabel utama berikut sudah tersedia:
-
-```env
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://domain-aplikasi.vercel.app
-DB_CONNECTION=pgsql
-DB_SSLMODE=require
-SESSION_DRIVER=database
-CACHE_STORE=array
-QUEUE_CONNECTION=sync
-```
-
-Detail koneksi database, `APP_KEY`, dan API key harus disimpan sebagai secret pada platform deployment.
 
 ## API
 
