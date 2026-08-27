@@ -104,12 +104,6 @@
                         @enderror
                     </form>
 
-                    <div class="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-slate-400">
-                        <span>Coba nomor contoh:</span>
-                        <a href="{{ route('tracking.show', 'TANTO-CT-000124') }}" class="font-bold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200">TANTO-CT-000124</a>
-                        <span aria-hidden="true">•</span>
-                        <a href="{{ route('tracking.show', 'TANTO-CT-000125') }}" class="font-bold text-cyan-300 underline decoration-cyan-300/30 underline-offset-4 hover:text-cyan-200">TANTO-CT-000125</a>
-                    </div>
                 </div>
             </section>
 

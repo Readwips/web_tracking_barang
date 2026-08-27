@@ -15,7 +15,8 @@ class TrackingPageTest extends DelayAlertTestCase
             ->assertSee('required', false)
             ->assertSee('aria-invalid="false"', false)
             ->assertSee('TANTO-CT-000124')
-            ->assertSee('TANTO-CT-000125')
+            ->assertDontSee('Coba nomor contoh:')
+            ->assertDontSee('TANTO-CT-000125')
             ->assertDontSee('data-shipment-summary', false);
     }
 
